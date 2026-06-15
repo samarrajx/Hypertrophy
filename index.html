@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hypertrophy">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="description" content="Advanced 16-day hypertrophy training tracker">
+<title>16-Day Hypertrophy</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #0d0d18;
+    --bg3: #0f0f18;
+    --border: #1e1e3a;
+    --border2: #141420;
+    --text: #e8e8f0;
+    --muted: #888;
+    --dim: #555;
+    --pull: #3b82f6;
+    --push: #f97316;
+    --legs: #22c55e;
+    --bts: #a855f7;
+    --pull-dim: rgba(59,130,246,0.12);
+    --push-dim: rgba(249,115,22,0.12);
+    --legs-dim: rgba(34,197,94,0.12);
+    --bts-dim: rgba(168,85,247,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    min-height: 100vh;
+    overscroll-behavior: none;
+  }
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+  ::-webkit-scrollbar-track { background: #111; }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+  /* HEADER */
+  #header {
+    background: linear-gradient(135deg, #0f0f1a 0%, #141428 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px 12px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  #header .sub { font-size: 10px; letter-spacing: 3px; color: var(--dim); font-weight: 600; text-transform: uppercase; }
+  #header h1 { font-size: 26px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; line-height: 1; margin-top: 2px; }
+  #header-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 5px; }
+  #days-done-text { font-size: 12px; color: #666; }
+
+  /* HEADER ACTIONS */
+  .header-actions { display: flex; gap: 7px; align-items: center; }
+  .hdr-btn {
+    padding: 4px 9px; border-radius: 5px; border: 1px solid var(--border);
+    background: transparent; color: var(--dim); font-size: 10px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; font-family: inherit;
+    -webkit-appearance: none; appearance: none; transition: all 0.15s;
+  }
+  .hdr-btn:active { background: rgba(255,255,255,0.06); }
+  #reset-btn { color: #ef4444; border-color: rgba(239,68,68,0.3); }
+  #reset-btn:hover { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.5); }
+  #install-btn { color: #3b82f6; border-color: rgba(59,130,246,0.3); display: none; }
+  #install-btn:hover { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.5); }
+  #install-btn.visible { display: block; }
+
+  /* DAY SELECTOR */
+  #day-selector {
+    background: var(--bg2);
+    border-bottom: 1px solid #1a1a2e;
+    padding: 10px 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  #day-selector::-webkit-scrollbar { display: none; }
+  #day-strip { display: flex; gap: 5px; width: max-content; }
+  .day-btn {
+    padding: 6px 9px; border-radius: 6px; border: 1px solid var(--border);
+    background: #111; color: var(--muted); font-size: 11px; font-weight: 500;
+    cursor: pointer; position: relative; font-family: inherit;
+    letter-spacing: 0.5px; white-space: nowrap; transition: all 0.15s;
+    -webkit-appearance: none; appearance: none;
+  }
+  .day-btn.active { color: #fff; font-weight: 800; }
+  .day-btn.done-dot::after {
+    content: ''; position: absolute; top: -3px; right: -3px;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--legs);
+    border: 1px solid var(--bg2);
+  }
+  .bts-label { font-size: 9px; font-weight: 700; color: var(--bts); margin-left: 2px; }
+
+  /* MAIN */
+  #main { max-width: 480px; margin: 0 auto; padding: 14px 14px 32px; }
+
+  /* DAY HEADER */
+  #day-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+  #day-meta { flex: 1; }
+  #day-meta .top-row { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+  #day-meta .day-num { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; }
+  .tag-badge {
+    padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase; border: 1px solid;
+  }
+  #day-meta h2 { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1.1; }
+  #day-pct { text-align: right; }
+  #day-pct .pct { font-size: 28px; font-weight: 900; line-height: 1; }
+  #day-pct .count { font-size: 11px; color: var(--dim); margin-top: 2px; }
+
+  /* PROGRESS BAR */
+  #progress-track { height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 14px; overflow: hidden; }
+  #progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s cubic-bezier(.4,0,.2,1); width: 0%; }
+
+  /* CARDIO TOGGLE */
+  #cardio-toggle {
+    width: 100%; padding: 10px 13px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg3); cursor: pointer; font-family: inherit; color: var(--text);
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px;
+    -webkit-appearance: none; appearance: none;
+  }
+  #cardio-toggle span.label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  #cardio-toggle span.arrow { font-size: 14px; color: var(--dim); }
+  #cardio-panel { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; margin-bottom: 9px; display: none; }
+  #cardio-panel.open { display: block; }
+  .cardio-section-title { font-size: 10px; letter-spacing: 2px; color: var(--dim); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
+  .cardio-item { font-size: 13px; color: #aaa; padding: 3px 0; display: flex; align-items: center; gap: 7px; }
+  .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--dim); display: inline-block; flex-shrink: 0; }
+  .cardio-sep { margin: 7px 0; }
+
+  /* BTS PANEL */
+  #bts-panel { background: #1a0f2e; border: 1px solid rgba(168,85,247,0.2); border-radius: 8px; padding: 10px 13px; margin-bottom: 9px; display: none; }
+  #bts-panel.visible { display: block; }
+  #bts-panel .bts-title { font-size: 10px; letter-spacing: 2px; color: var(--bts); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+  #bts-panel p { font-size: 12px; color: #888; line-height: 1.6; }
+  #bts-panel b { color: #c084fc; }
+
+  /* EXERCISE TABLE */
+  #ex-table { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 11px; }
+  #ex-header { padding: 9px 13px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 52px 60px 58px; gap: 6px; }
+  #ex-header span { font-size: 10px; letter-spacing: 1.5px; color: #444; font-weight: 700; text-transform: uppercase; }
+  #ex-header span:not(:first-child) { text-align: center; }
+  .ex-row {
+    padding: 11px 13px; cursor: pointer; display: grid;
+    grid-template-columns: 1fr 52px 60px 58px; gap: 6px; align-items: start;
+    transition: background 0.12s, opacity 0.2s; border-bottom: 1px solid var(--border2);
+  }
+  .ex-row:last-child { border-bottom: none; }
+  .ex-row:active { background: rgba(255,255,255,0.04); }
+  .ex-row.checked { opacity: 0.4; }
+  .ex-name-wrap { display: flex; align-items: center; gap: 7px; }
+  .checkbox {
+    width: 17px; height: 17px; border-radius: 4px; flex-shrink: 0;
+    border: 1.5px solid #2a2a4a; background: transparent;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .checkbox svg { display: none; }
+  .checkbox.done { border: none; }
+  .checkbox.done svg { display: block; }
+  .ex-name { font-size: 13px; font-weight: 600; line-height: 1.2; color: var(--text); }
+  .ex-row.checked .ex-name { text-decoration: line-through; color: var(--dim); }
+  .ex-cue { font-size: 11px; color: var(--dim); margin-top: 2px; line-height: 1.3; }
+  .ex-sets, .ex-reps { font-size: 13px; font-weight: 700; text-align: center; color: #aaa; padding-top: 1px; }
+  .ex-reps { font-size: 12px; font-weight: 600; }
+  .ex-rpe { font-size: 11px; font-weight: 700; text-align: center; padding-top: 1px; }
+  .rpe-red { color: #f87171; }
+  .rpe-purple { color: #c084fc; }
+  .rpe-cyan { color: #67e8f9; }
+  .rpe-orange { color: #fb923c; }
+  .rpe-yellow { color: #fbbf24; }
+
+  /* COMPLETE BUTTON */
+  #complete-btn {
+    width: 100%; padding: 14px; border-radius: 10px; border: none; cursor: pointer;
+    font-family: inherit; font-size: 14px; font-weight: 800; letter-spacing: 3px;
+    text-transform: uppercase; transition: all 0.2s; -webkit-appearance: none; appearance: none;
+  }
+
+  /* PROGRESSION NOTE */
+  #prog-note { margin-top: 12px; padding: 10px 13px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; }
+  #prog-note .prog-title { font-size: 10px; letter-spacing: 2px; color: var(--dim); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
+  #prog-note p { font-size: 12px; color: #666; line-height: 1.6; }
+  #prog-note b { color: #888; }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #1a2e1a; border: 1px solid var(--legs); color: var(--legs);
+    padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; opacity: 0; transition: all 0.3s;
+    pointer-events: none; white-space: nowrap; z-index: 100;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* RESET CONFIRM MODAL */
+  #reset-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200;
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  #reset-modal.open { display: flex; }
+  #reset-modal-box {
+    background: #11111e; border: 1px solid #2a2a4a; border-radius: 12px;
+    padding: 24px 22px; max-width: 320px; width: 100%;
+  }
+  #reset-modal-box .modal-title {
+    font-size: 16px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+    color: #ef4444; margin-bottom: 8px;
+  }
+  #reset-modal-box p { font-size: 13px; color: #888; line-height: 1.6; margin-bottom: 20px; }
+  .modal-btns { display: flex; gap: 9px; }
+  .modal-btns button {
+    flex: 1; padding: 11px; border-radius: 8px; border: 1px solid var(--border);
+    font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer; -webkit-appearance: none; appearance: none;
+    transition: all 0.15s;
+  }
+  #modal-cancel { background: transparent; color: var(--muted); }
+  #modal-cancel:active { background: rgba(255,255,255,0.06); }
+  #modal-confirm { background: rgba(239,68,68,0.15); color: #ef4444; border-color: rgba(239,68,68,0.35); }
+  #modal-confirm:active { background: rgba(239,68,68,0.25); }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="sub">Advanced · Hypertrophy</div>
+  <h1>16-Day Program</h1>
+  <div id="header-bottom">
+    <div class="days-done" id="days-done-text">0 of 16 days completed</div>
+    <div class="header-actions">
+      <button id="install-btn" class="hdr-btn">⬇ Install</button>
+      <button id="reset-btn" class="hdr-btn">↺ Reset</button>
+    </div>
+  </div>
+</div>
+
+<div id="day-selector">
+  <div id="day-strip"></div>
+</div>
+
+<div id="main">
+  <div id="day-header">
+    <div id="day-meta">
+      <div class="top-row">
+        <span class="day-num" id="day-num-label"></span>
+        <span class="tag-badge" id="tag-badge"></span>
+      </div>
+      <h2 id="day-focus"></h2>
+    </div>
+    <div id="day-pct">
+      <div class="pct" id="pct-text">0%</div>
+      <div class="count" id="count-text">0/0 done</div>
+    </div>
+  </div>
+
+  <div id="progress-track"><div id="progress-fill"></div></div>
+
+  <button id="cardio-toggle">
+    <span class="label">🔥 Cardio Warmup</span>
+    <span class="arrow" id="cardio-arrow">▼</span>
+  </button>
+  <div id="cardio-panel">
+    <div class="cardio-section-title">Common</div>
+    <div id="cardio-common"></div>
+    <div class="cardio-sep"></div>
+    <div class="cardio-section-title">Unique</div>
+    <div id="cardio-unique"></div>
+  </div>
+
+  <div id="bts-panel">
+    <div class="bts-title">Intensity Techniques</div>
+    <p>
+      <b>Myo-reps:</b> 1 set to failure → rest 10–15s → 3–5 mini sets of 3–5 reps<br>
+      <b>LLP:</b> After failure, partial reps in the stretched position<br>
+      <b>Static Stretch:</b> 30s deep stretch hold after last set
+    </p>
+  </div>
+
+  <div id="ex-table">
+    <div id="ex-header">
+      <span>Exercise</span>
+      <span>Sets</span>
+      <span>Reps</span>
+      <span>RPE</span>
+    </div>
+    <div id="ex-list"></div>
+  </div>
+
+  <button id="complete-btn"></button>
+
+  <div id="prog-note">
+    <div class="prog-title">Progression</div>
+    <p><b>Week 1:</b> Leave 1–3 reps in the tank (RPE ~7–9) &nbsp;·&nbsp; <b>Post Week 1:</b> Last set of every exercise to failure (RPE 10)</p>
+  </div>
+</div>
+
+<div id="toast">✓ Day Complete!</div>
+
+<!-- Reset Confirmation Modal -->
+<div id="reset-modal">
+  <div id="reset-modal-box">
+    <div class="modal-title">⚠ Reset All Progress?</div>
+    <p>This will clear all checked exercises and completed days. This cannot be undone.</p>
+    <div class="modal-btns">
+      <button id="modal-cancel">Cancel</button>
+      <button id="modal-confirm">Reset</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const programData = [
+  {
+    day: 1, focus: "Back & Biceps", tag: "PULL",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["High Knees", "Burpees", "Shadow Boxing"] },
+    exercises: [
+      { name: "Deadlift (Conventional)", sets: 3, reps: "5–8", rpe: "8–9", cue: "Brace core; keep bar close to shins." },
+      { name: "1-Arm Lat Pull-In", sets: 3, reps: "12–15", rpe: "8–9", cue: "Pull elbow to hip; feel lower lat." },
+      { name: "Barbell Row", sets: 3, reps: "8–10", rpe: "9", cue: "Explode up; control the negative." },
+      { name: "Smith Machine Row", sets: 3, reps: "10–12", rpe: "9", cue: "Squeeze shoulder blades together." },
+      { name: "Hyper-extension (Glute Focus)", sets: 3, reps: "12–15", rpe: "9", cue: "Tuck chin; round upper back." },
+      { name: "DB Preacher Curl", sets: 3, reps: "10–12", rpe: "9", cue: "Full stretch at the bottom." },
+      { name: "Hammer Curl", sets: 3, reps: "10–12", rpe: "9", cue: "Keep elbows pinned to sides." },
+      { name: "EZ Bar Curl", sets: 3, reps: "12–15", rpe: "9", cue: "Focus on squeeze at the top." },
+      { name: "Bayesian Cable Curl", sets: 3, reps: "15–20", rpe: "9", cue: "Lean forward; elbows behind torso." },
+    ]
+  },
+  {
+    day: 2, focus: "Chest & Triceps", tag: "PUSH",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Plank Jacks", "Butt Kicks", "Speed Skaters"] },
+    exercises: [
+      { name: "Bench Press (Flat Barbell)", sets: 3, reps: "6–8", rpe: "8–9", cue: "Touch mid-chest; drive feet down." },
+      { name: "Incline Machine Press", sets: 3, reps: "8–10", rpe: "9", cue: "Focus on upper pec fibers." },
+      { name: "Weighted Dips", sets: 3, reps: "Failure", rpe: "10", cue: "Lean forward for chest focus." },
+      { name: "Machine Chest Press", sets: 3, reps: "10–12", rpe: "9", cue: "Constant tension; no full lockout." },
+      { name: "Low-to-High Cable Flye", sets: 3, reps: "12–15", rpe: "9", cue: "Hands together at chin height." },
+      { name: "Dumbbell Skull Crusher", sets: 3, reps: "12–15", rpe: "9", cue: "Lower weights toward your ears." },
+      { name: "Triceps Pressdown (Rope)", sets: 3, reps: "15–20", rpe: "9", cue: "Flare the rope at the bottom." },
+      { name: "California Press", sets: 3, reps: "10–12", rpe: "9", cue: "Hybrid skull crusher and press." },
+      { name: "Close Grip Bench Press", sets: 3, reps: "8–10", rpe: "9", cue: "Keep elbows tucked to ribs." },
+    ]
+  },
+  {
+    day: 3, focus: "Quads & Calves", tag: "LEGS",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Lateral Shuffles", "Broad Jumps", "Bear Crawls"] },
+    exercises: [
+      { name: "Barbell Back Squat", sets: 3, reps: "6–8", rpe: "8–9", cue: "Break at hips and knees together." },
+      { name: "Leg Press (Wide Stance)", sets: 3, reps: "10–12", rpe: "9", cue: "Drive through the heels." },
+      { name: "Hack Squat", sets: 3, reps: "8–10", rpe: "9", cue: "Deep stretch at the bottom." },
+      { name: "Leg Extension", sets: 3, reps: "12–15", rpe: "9", cue: "Squeeze quads hard at top." },
+      { name: "Sissy Squat", sets: 3, reps: "12–15", rpe: "9", cue: "Feel quad pull on negative." },
+      { name: "Walking Lunges", sets: 3, reps: "12/side", rpe: "9", cue: "Medium strides; vertical torso." },
+      { name: "Standing Calf Raise", sets: 4, reps: "15–20", rpe: "9", cue: "1–2s pause at bottom stretch." },
+      { name: "Seated Calf Raise", sets: 3, reps: "15–20", rpe: "9", cue: "Slow, controlled reps." },
+      { name: "Ab Wheel Rollout", sets: 3, reps: "10–12", rpe: "9", cue: "Round lower back; core tight." },
+    ]
+  },
+  {
+    day: 4, focus: "Shoulders, Abs & Forearms", tag: "PUSH",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Frog Jumps", "Squat Thrusts", "Air Punches"] },
+    exercises: [
+      { name: "Military Press (Standing)", sets: 3, reps: "6–8", rpe: "8–9", cue: "Stay strict; no leg drive." },
+      { name: "DB Lateral Raise", sets: 4, reps: "12–15", rpe: "9", cue: "Lead with the elbows." },
+      { name: "Face Pulls", sets: 3, reps: "15–20", rpe: "9", cue: "Pull to forehead; rotate out." },
+      { name: "Upright Row (Cable)", sets: 3, reps: "12–15", rpe: "9", cue: "Elbows high; pull to upper chest." },
+      { name: "Reverse Pec Deck", sets: 3, reps: "15–20", rpe: "9", cue: "Contract rear delts hard." },
+      { name: "Arnold Press", sets: 3, reps: "10–12", rpe: "9", cue: "Rotate palms as you press." },
+      { name: "Hanging Leg Raises", sets: 3, reps: "Failure", rpe: "10", cue: "Curl pelvis toward chest." },
+      { name: "Cable Crunch", sets: 3, reps: "15–20", rpe: "9", cue: "Round back as you crunch." },
+      { name: "Wrist Curl (DB)", sets: 3, reps: "15–20", rpe: "9", cue: "Full range; slow control." },
+      { name: "Reverse Wrist Curl", sets: 3, reps: "15–20", rpe: "9", cue: "Overhand grip; extensors." },
+    ]
+  },
+  {
+    day: 5, focus: "Back & Biceps", tag: "PULL",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Jump Rope Simulation", "Squat Jumps", "Lateral Hops"] },
+    exercises: [
+      { name: "Pull-Up (Weighted)", sets: 3, reps: "5–8", rpe: "8–9", cue: "Full dead hang at bottom." },
+      { name: "Chest-Supported DB Row", sets: 3, reps: "10–12", rpe: "9", cue: "Let arms hang fully at bottom." },
+      { name: "Cable Lat Pulldown (Wide)", sets: 3, reps: "10–12", rpe: "9", cue: "Arch back; pull to chin." },
+      { name: "Single-Arm DB Row", sets: 3, reps: "10–12", rpe: "9", cue: "Brace on bench; full ROM." },
+      { name: "Cable Straight-Arm Pulldown", sets: 3, reps: "12–15", rpe: "9", cue: "Slight forward lean; lat focus." },
+      { name: "Incline DB Curl", sets: 3, reps: "10–12", rpe: "9", cue: "Long head stretch at bottom." },
+      { name: "Spider Curl", sets: 3, reps: "12–15", rpe: "9", cue: "Chest on incline; pure curl." },
+      { name: "Cable Curl (Low Pulley)", sets: 3, reps: "12–15", rpe: "9", cue: "Constant tension at bottom." },
+      { name: "Farmer Carry", sets: 3, reps: "40m", rpe: "9", cue: "Shoulders back; walk fast." },
+    ]
+  },
+  {
+    day: 6, focus: "Chest & Triceps", tag: "PUSH",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Power Skips", "Jumping Lunges", "Explosive Push-ups"] },
+    exercises: [
+      { name: "Incline Barbell Press", sets: 3, reps: "6–8", rpe: "8–9", cue: "45° angle; upper pec target." },
+      { name: "Flat DB Press", sets: 3, reps: "8–10", rpe: "9", cue: "Touch DBs at top; full ROM." },
+      { name: "Pec Deck Machine", sets: 3, reps: "12–15", rpe: "9", cue: "Squeeze at the midpoint." },
+      { name: "Cable Crossover (High)", sets: 3, reps: "12–15", rpe: "9", cue: "Hands cross midline." },
+      { name: "Dips (Bodyweight)", sets: 3, reps: "Failure", rpe: "10", cue: "Deep dip; chest stretch." },
+      { name: "JM Press", sets: 3, reps: "8–10", rpe: "9", cue: "Hybrid press and skull crusher." },
+      { name: "Overhead Tricep Ext (DB)", sets: 3, reps: "12–15", rpe: "9", cue: "Keep elbows in; full stretch." },
+      { name: "Tricep Kickback", sets: 3, reps: "15–20", rpe: "9", cue: "Hold squeeze at top." },
+      { name: "Band Pulldown", sets: 3, reps: "20–25", rpe: "8", cue: "High reps pump finisher." },
+    ]
+  },
+  {
+    day: 7, focus: "Hamstrings & Glutes", tag: "LEGS",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Donkey Kicks", "Fire Hydrants", "Hip Circles"] },
+    exercises: [
+      { name: "Romanian Deadlift", sets: 4, reps: "8–10", rpe: "8–9", cue: "Push hips back; slight knee bend." },
+      { name: "Lying Leg Curl", sets: 3, reps: "10–12", rpe: "9", cue: "Curl hard; squeeze at the top." },
+      { name: "Seated Leg Curl", sets: 3, reps: "12–15", rpe: "9", cue: "Focus on hamstring stretch." },
+      { name: "Hip Thrust (Barbell)", sets: 4, reps: "10–12", rpe: "9", cue: "Drive hips high; glute squeeze." },
+      { name: "Cable Pull-Through", sets: 3, reps: "15–20", rpe: "9", cue: "Hip hinge pattern; glute focus." },
+      { name: "Bulgarian Split Squat", sets: 3, reps: "10/side", rpe: "9", cue: "Front foot flat; upright torso." },
+      { name: "Glute Kickback (Cable)", sets: 3, reps: "15/side", rpe: "9", cue: "Keep hips square." },
+      { name: "Donkey Calf Raise", sets: 4, reps: "15–20", rpe: "9", cue: "Full stretch at the bottom." },
+      { name: "Plank (Weighted)", sets: 3, reps: "45 sec", rpe: "9", cue: "Plate on back; stay tight." },
+    ]
+  },
+  {
+    day: 8, focus: "Shoulders, Abs & Forearms", tag: "PUSH",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Arm Circles", "T-Rotations", "Shoulder Taps"] },
+    exercises: [
+      { name: "DB Shoulder Press (Seated)", sets: 3, reps: "8–10", rpe: "9", cue: "Full extension overhead." },
+      { name: "Cable Lateral Raise", sets: 4, reps: "15–20", rpe: "9", cue: "At cable; constant tension." },
+      { name: "Bent-Over Lateral Raise", sets: 3, reps: "15–20", rpe: "9", cue: "Chest parallel to floor." },
+      { name: "Machine Shoulder Press", sets: 3, reps: "10–12", rpe: "9", cue: "Control the descent." },
+      { name: "Landmine Press", sets: 3, reps: "10/side", rpe: "9", cue: "Single-arm arc press." },
+      { name: "Ab Rollout (Barbell)", sets: 3, reps: "8–10", rpe: "9", cue: "Extend fully; pull back slow." },
+      { name: "Decline Crunch", sets: 3, reps: "15–20", rpe: "9", cue: "Hands behind head; full ROM." },
+      { name: "Russian Twist", sets: 3, reps: "20 total", rpe: "9", cue: "Feet elevated; rotate fully." },
+      { name: "Pinch Grip Plate Carry", sets: 3, reps: "40m", rpe: "9", cue: "Pinch the edge; forearm burn." },
+    ]
+  },
+  {
+    day: 9, focus: "Back & Biceps", tag: "BTS",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Superman Holds", "Flutter Kicks", "Leg Circles"] },
+    exercises: [
+      { name: "Snatch-Grip Deadlift", sets: 3, reps: "8–10", rpe: "10", cue: "Wide grip; increases back tension." },
+      { name: "Seal Row (Dumbbell)", sets: 3, reps: "12–15", rpe: "10", cue: "Bench-supported; no momentum." },
+      { name: "V-Bar Pulldown", sets: 3, reps: "10–12", rpe: "10", cue: "Squeeze the lats at the bottom." },
+      { name: "Reverse Grip Lat Pulldown", sets: 3, reps: "12–15", rpe: "10", cue: "Underhand grip; lower lat focus." },
+      { name: "Snatch Grip Barbell Shrug", sets: 3, reps: "12–15", rpe: "10", cue: "Targets the upper traps." },
+      { name: "Zottman Curl", sets: 3, reps: "12–15", rpe: "10", cue: "Rotate on the way down." },
+      { name: "Cross-Body Hammer Curl", sets: 3, reps: "10–12", rpe: "10", cue: "Curl across the body." },
+      { name: "Cable Face Away Curl", sets: 3, reps: "15–20", rpe: "10", cue: "Facing away for peak stretch." },
+      { name: "Reverse Barbell Curl", sets: 3, reps: "12–15", rpe: "10", cue: "Overhand grip for brachialis." },
+    ]
+  },
+  {
+    day: 10, focus: "Chest & Triceps", tag: "PUSH",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Burpee Broad Jumps", "Windmills", "Plie Squat Jumps"] },
+    exercises: [
+      { name: "45° Incline BB Press", sets: 3, reps: "6–8", rpe: "10", cue: "Pause at chest; explode up." },
+      { name: "Bottom-Half DB Flye", sets: 3, reps: "12–15", rpe: "10", cue: "Focus on the deep stretch." },
+      { name: "Spoto Press", sets: 3, reps: "8–10", rpe: "10", cue: "Pause 1 inch above chest." },
+      { name: "Guillotine Press", sets: 2, reps: "12–15", rpe: "10", cue: "Flared elbows; lower to neck." },
+      { name: "Diamond Pushups", sets: 3, reps: "Failure", rpe: "10", cue: "Hands in diamond; tricep focus." },
+      { name: "Overhead Triceps Ext (Bar)", sets: 3, reps: "10–12", rpe: "10", cue: "Full extension at the top." },
+      { name: "Barbell Floor Skull Crusher", sets: 3, reps: "12–15", rpe: "10", cue: "Barbell version on the floor." },
+      { name: "Single Arm Tricep Ext", sets: 3, reps: "15–20", rpe: "10", cue: "Isolation for each arm." },
+      { name: "Farmer Walks", sets: 3, reps: "40m", rpe: "—", cue: "Grip strength and core stability." },
+    ]
+  },
+  {
+    day: 11, focus: "Legs (Power Focus)", tag: "LEGS",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Pike Pushups", "Side Plank Dips", "High Knee Taps"] },
+    exercises: [
+      { name: "Smith Machine Squat", sets: 3, reps: "6–8", rpe: "9", cue: "Feet forward 3–6 inches." },
+      { name: "Leg Press (Close Stance)", sets: 3, reps: "15–20", rpe: "9", cue: "Targets outer quad sweep." },
+      { name: "Good Mornings", sets: 3, reps: "10–12", rpe: "9", cue: "Slight knee bend; hip hinge." },
+      { name: "Deficit Deadlift", sets: 3, reps: "8–10", rpe: "9", cue: "Stand on a plate for extra ROM." },
+      { name: "Single-Leg Leg Extension", sets: 2, reps: "15–20", rpe: "9", cue: "Fixes quad imbalances." },
+      { name: "Single-Leg Leg Curl", sets: 2, reps: "15–20", rpe: "9", cue: "Fixes hamstring imbalances." },
+      { name: "Toe Press on Leg Press", sets: 4, reps: "15–20", rpe: "9", cue: "Heavy calf isolation." },
+      { name: "Suitcase Carry", sets: 3, reps: "40m/side", rpe: "—", cue: "Walk with weight in one hand." },
+      { name: "Dead Bug (Core)", sets: 3, reps: "12–15", rpe: "9", cue: "Keep lower back flat on floor." },
+    ]
+  },
+  {
+    day: 12, focus: "Shoulders, Abs & Forearms", tag: "PUSH",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Frogger", "Russian Twists (BW)", "Squat Hold + Punches"] },
+    exercises: [
+      { name: "Seated DB Shoulder Press", sets: 3, reps: "8–10", rpe: "8", cue: "Maintain vertical forearms." },
+      { name: "1-Arm Cable Lateral Raise", sets: 3, reps: "12–15", rpe: "8", cue: "Lean away for maximum tension." },
+      { name: "Bent Over Rear Delt Flye", sets: 3, reps: "15–20", rpe: "8", cue: "Pinkies up for rear delt focus." },
+      { name: "Dumbbell Shrugs", sets: 3, reps: "12–15", rpe: "8", cue: "Hold squeeze at the top." },
+      { name: "Plate Front Raise", sets: 3, reps: "12–15", rpe: "8", cue: "Raise to eye level." },
+      { name: "Cable Face Pulls", sets: 3, reps: "15–20", rpe: "8", cue: "Pull to ears; external rotation." },
+      { name: "Lying Leg Raises", sets: 3, reps: "15–20", rpe: "8", cue: "Don't let feet touch the floor." },
+      { name: "Plank", sets: 3, reps: "60 sec", rpe: "8", cue: "Full body tension." },
+      { name: "Hammer Grip Wrist Curls", sets: 3, reps: "15–20", rpe: "8", cue: "Neutral grip wrist curls." },
+      { name: "Towel Pull-Up Hang", sets: 3, reps: "Failure", rpe: "10", cue: "Extreme grip and forearm test." },
+    ]
+  },
+  {
+    day: 13, focus: "Back & Biceps", tag: "BTS",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Star Jumps", "Crab Walks", "Bicycle Kicks"] },
+    exercises: [
+      { name: "Pendlay Deficit Row", sets: 2, reps: "6–8", rpe: "Failure+LLP", cue: "1.5x width grip; pull to stomach." },
+      { name: "Lean-Back Lat Pulldown", sets: 2, reps: "10–12", rpe: "Failure", cue: "Lean 15–30 deg; touch chest." },
+      { name: "Chest-Supported T-Bar Row", sets: 2, reps: "10–12", rpe: "Failure", cue: "Flare elbows 45 deg." },
+      { name: "Machine Preacher Curl", sets: 1, reps: "12–15", rpe: "Failure", cue: "Smooth, controlled reps." },
+      { name: "Dual-Handle Lat Pulldown", sets: 2, reps: "10–12", rpe: "Myo-reps", cue: "Focus on lats and mid-traps." },
+      { name: "EZ-Bar Cable Curl", sets: 2, reps: "10–12", rpe: "Myo-reps", cue: "Lowest cable position." },
+      { name: "Cable Rope Hammer Curl", sets: 3, reps: "12–15", rpe: "Failure", cue: "Squeeze rope hard." },
+      { name: "DB Concentration Curl", sets: 1, reps: "15–20", rpe: "Failure", cue: "Mind-muscle connection." },
+    ]
+  },
+  {
+    day: 14, focus: "Chest & Triceps", tag: "BTS",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Box Toe Taps", "Seal Jumps", "Inchworms"] },
+    exercises: [
+      { name: "45° Incline DB Press", sets: 2, reps: "8–10", rpe: "Failure", cue: "Pause at bottom; maintain tension." },
+      { name: "Cable Crossover Ladder", sets: 2, reps: "8–10", rpe: "Failure", cue: "Vary cable height per set." },
+      { name: "Triceps Pressdown (Bar)", sets: 2, reps: "15–20", rpe: "Failure", cue: "Focus on tricep squeeze." },
+      { name: "Spoto Press", sets: 3, reps: "8–10", rpe: "Failure", cue: "Explode up from the pause." },
+      { name: "Machine Chest Press", sets: 2, reps: "10–12", rpe: "Failure", cue: "Break 90 deg at elbows." },
+      { name: "Bottom-Half Seated Cable Flye", sets: 2, reps: "12–15", rpe: "Failure", cue: "Feel deep stretch in pecs." },
+      { name: "EZ-Bar Skull Crusher", sets: 3, reps: "12–15", rpe: "Failure", cue: "Pause in stretched aspect." },
+      { name: "Overhead Cable Triceps Ext", sets: 2, reps: "8–10", rpe: "Failure", cue: "Pause in stretch." },
+    ]
+  },
+  {
+    day: 15, focus: "Legs & Abs", tag: "BTS",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Tuck Jumps", "Plank Up-Downs", "Windmills"] },
+    exercises: [
+      { name: "Smith Squat (Feet Forward)", sets: 2, reps: "6–8", rpe: "Failure", cue: "Lean back into the bar." },
+      { name: "Static Lunge (Elevated Foot)", sets: 2, reps: "8–10", rpe: "Failure", cue: "Drive through front heel." },
+      { name: "Reverse Nordic", sets: 2, reps: "8–10", rpe: "Failure", cue: "Feel quads pulling apart." },
+      { name: "Machine Hip Adduction", sets: 2, reps: "10–12", rpe: "Failure", cue: "Add inner thigh mass." },
+      { name: "Leg Press Calf Press", sets: 2, reps: "8–10", rpe: "Failure", cue: "Roll ankle on ball of foot." },
+      { name: "45° Hyperextension", sets: 3, reps: "8–10", rpe: "Failure", cue: "Squeeze glutes at top." },
+      { name: "Machine Crunch", sets: 2, reps: "10–12", rpe: "Static Stretch", cue: "Round lower back as you crunch." },
+      { name: "Roman Chair Leg Raise", sets: 2, reps: "10–20", rpe: "Failure", cue: "Round back; curl legs up." },
+    ]
+  },
+  {
+    day: 16, focus: "Shoulders & Forearms", tag: "BTS",
+    cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Superman Holds", "Flutter Kicks", "Leg Circles"] },
+    exercises: [
+      { name: "High-Cable Lateral Raise", sets: 2, reps: "8–10", rpe: "Myo-reps", cue: "Squeeze side delt to move." },
+      { name: "1-Arm Rear Delt Flye", sets: 2, reps: "10–12", rpe: "Myo-reps", cue: "Pause 1–2s in squeeze." },
+      { name: "Machine Shrug", sets: 2, reps: "10–12", rpe: "Failure", cue: "Pull shoulders to ears." },
+      { name: "Cable Paused Shrug-In", sets: 2, reps: "12–15", rpe: "Failure", cue: "1–2s pause in stretch/squeeze." },
+      { name: "Modified Candlestick", sets: 2, reps: "10–20", rpe: "Failure", cue: "Pelvic tilt focus." },
+      { name: "Plate Pinch Carry", sets: 3, reps: "60 sec", rpe: "10", cue: "Extreme grip test." },
+      { name: "Reverse Barbell Curl", sets: 3, reps: "12–15", rpe: "10", cue: "Brachialis focus." },
+    ]
+  },
+];
+
+const TAG_COLOR = {
+  PULL: { accent: '#3b82f6', dim: 'rgba(59,130,246,0.12)', text: '#93c5fd', border: 'rgba(59,130,246,0.25)' },
+  PUSH: { accent: '#f97316', dim: 'rgba(249,115,22,0.12)', text: '#fdba74', border: 'rgba(249,115,22,0.25)' },
+  LEGS: { accent: '#22c55e', dim: 'rgba(34,197,94,0.12)',  text: '#86efac', border: 'rgba(34,197,94,0.25)' },
+  BTS:  { accent: '#a855f7', dim: 'rgba(168,85,247,0.12)', text: '#d8b4fe', border: 'rgba(168,85,247,0.25)' },
+};
+
+function rpeClass(rpe) {
+  if (rpe === 'Failure' || rpe === 'Failure+LLP' || rpe === '10') return 'rpe-red';
+  if (rpe === 'Myo-reps') return 'rpe-purple';
+  if (rpe === 'Static Stretch') return 'rpe-cyan';
+  if (rpe === '9' || rpe === '8–9') return 'rpe-orange';
+  return 'rpe-yellow';
+}
+
+// --- State (backed by localStorage) ---
+const DEFAULT_STATE = { activeDay: 0, checked: {}, completedDays: {} };
+let state = { ...DEFAULT_STATE };
+try {
+  const saved = localStorage.getItem('hypertrophy_state');
+  if (saved) state = JSON.parse(saved);
+} catch(e) {}
+
+function saveState() {
+  try { localStorage.setItem('hypertrophy_state', JSON.stringify(state)); } catch(e) {}
+}
+function isChecked(dayNum, exIdx) {
+  return !!state.checked[`d${dayNum}_e${exIdx}`];
+}
+function toggleExercise(dayNum, exIdx) {
+  const k = `d${dayNum}_e${exIdx}`;
+  state.checked[k] = !state.checked[k];
+  saveState();
+  render();
+}
+function isDayDone(dayNum) { return !!state.completedDays[dayNum]; }
+function markDayComplete() {
+  const day = programData[state.activeDay];
+  state.completedDays[day.day] = true;
+  saveState();
+  showToast('✓ Day Complete!', '#22c55e', '#1a2e1a');
+  render();
+}
+
+// --- Reset ---
+document.getElementById('reset-btn').addEventListener('click', () => {
+  document.getElementById('reset-modal').classList.add('open');
+});
+document.getElementById('modal-cancel').addEventListener('click', () => {
+  document.getElementById('reset-modal').classList.remove('open');
+});
+document.getElementById('modal-confirm').addEventListener('click', () => {
+  state = { activeDay: 0, checked: {}, completedDays: {} };
+  saveState();
+  document.getElementById('reset-modal').classList.remove('open');
+  showToast('↺ Progress Reset', '#ef4444', '#1a0a0a');
+  render();
+  setTimeout(() => scrollDayIntoView(0), 100);
+});
+// Close modal on backdrop tap
+document.getElementById('reset-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('reset-modal')) {
+    document.getElementById('reset-modal').classList.remove('open');
+  }
+});
+
+// --- Render ---
+function render() {
+  const day = programData[state.activeDay];
+  const tc = TAG_COLOR[day.tag];
+  const total = day.exercises.length;
+  const done = day.exercises.filter((_, i) => isChecked(day.day, i)).length;
+  const pct = total > 0 ? (done / total) * 100 : 0;
+  const allDone = isDayDone(day.day);
+
+  // Header days count
+  const totalDone = Object.keys(state.completedDays).length;
+  document.getElementById('days-done-text').textContent = `${totalDone} of 16 days completed`;
+
+  // Day strip
+  const strip = document.getElementById('day-strip');
+  strip.innerHTML = '';
+  programData.forEach((d, i) => {
+    const tc2 = TAG_COLOR[d.tag];
+    const active = i === state.activeDay;
+    const done2 = isDayDone(d.day);
+    const btn = document.createElement('button');
+    btn.className = 'day-btn' + (done2 ? ' done-dot' : '') + (active ? ' active' : '');
+    if (active) {
+      btn.style.border = `1px solid ${tc2.accent}`;
+      btn.style.background = tc2.dim;
+      btn.style.color = '#fff';
+    }
+    let inner = `D${d.day}`;
+    if (d.tag === 'BTS') inner += `<span class="bts-label">BTS</span>`;
+    btn.innerHTML = inner;
+    btn.onclick = () => { state.activeDay = i; saveState(); render(); scrollDayIntoView(i); };
+    strip.appendChild(btn);
+  });
+
+  // Day header
+  document.getElementById('day-num-label').textContent = `Day ${day.day}`;
+  const badge = document.getElementById('tag-badge');
+  badge.textContent = day.tag;
+  badge.style.background = tc.dim;
+  badge.style.color = tc.text;
+  badge.style.borderColor = tc.border;
+  document.getElementById('day-focus').textContent = day.focus;
+
+  // Percent
+  const pctEl = document.getElementById('pct-text');
+  pctEl.textContent = Math.round(pct) + '%';
+  pctEl.style.color = pct === 100 ? '#22c55e' : '#fff';
+  document.getElementById('count-text').textContent = `${done}/${total} done`;
+
+  // Progress bar
+  const fill = document.getElementById('progress-fill');
+  fill.style.width = pct + '%';
+  fill.style.background = pct === 100 ? '#22c55e' : tc.accent;
+
+  // Cardio
+  document.getElementById('cardio-common').innerHTML = day.cardio.common.map(c =>
+    `<div class="cardio-item"><span class="dot"></span>${c}</div>`).join('');
+  document.getElementById('cardio-unique').innerHTML = day.cardio.unique.map(c =>
+    `<div class="cardio-item"><span class="dot"></span>${c}</div>`).join('');
+
+  // BTS panel
+  document.getElementById('bts-panel').classList.toggle('visible', day.tag === 'BTS');
+
+  // Exercises
+  const list = document.getElementById('ex-list');
+  list.innerHTML = '';
+  day.exercises.forEach((ex, i) => {
+    const checked = isChecked(day.day, i);
+    const row = document.createElement('div');
+    row.className = 'ex-row' + (checked ? ' checked' : '');
+    row.innerHTML = `
+      <div class="ex-name-wrap">
+        <div class="checkbox ${checked ? 'done' : ''}" style="${checked ? `background:${tc.accent}` : ''}">
+          ${checked ? `<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}
+        </div>
+        <div>
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-cue">${ex.cue}</div>
+        </div>
+      </div>
+      <div class="ex-sets">${ex.sets}</div>
+      <div class="ex-reps">${ex.reps}</div>
+      <div class="ex-rpe ${rpeClass(ex.rpe)}">${ex.rpe}</div>
+    `;
+    row.addEventListener('click', () => toggleExercise(day.day, i));
+    list.appendChild(row);
+  });
+
+  // Complete button
+  const btn = document.getElementById('complete-btn');
+  if (allDone) {
+    btn.textContent = '✓ Day Complete';
+    btn.style.background = '#1a2e1a';
+    btn.style.color = '#22c55e';
+    btn.style.cursor = 'default';
+    btn.disabled = true;
+  } else if (pct === 100) {
+    btn.textContent = 'Mark Day Complete';
+    btn.style.background = tc.accent;
+    btn.style.color = '#fff';
+    btn.style.cursor = 'pointer';
+    btn.disabled = false;
+  } else {
+    btn.textContent = `Complete All Exercises (${done}/${total})`;
+    btn.style.background = '#111';
+    btn.style.color = '#333';
+    btn.style.cursor = 'not-allowed';
+    btn.disabled = true;
+  }
+}
+
+// --- Cardio toggle ---
+let cardioOpen = false;
+document.getElementById('cardio-toggle').addEventListener('click', () => {
+  cardioOpen = !cardioOpen;
+  document.getElementById('cardio-panel').classList.toggle('open', cardioOpen);
+  document.getElementById('cardio-arrow').textContent = cardioOpen ? '▲' : '▼';
+  document.getElementById('cardio-toggle').style.background = cardioOpen ? '#111827' : '#0f0f18';
+});
+
+// --- Complete button ---
+document.getElementById('complete-btn').addEventListener('click', () => {
+  const day = programData[state.activeDay];
+  const total = day.exercises.length;
+  const done = day.exercises.filter((_, i) => isChecked(day.day, i)).length;
+  if (done === total && !isDayDone(day.day)) markDayComplete();
+});
+
+// --- Toast ---
+function showToast(msg, color, bg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.color = color || '#22c55e';
+  t.style.background = bg || '#1a2e1a';
+  t.style.borderColor = color || '#22c55e';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// --- Scroll active day button into view ---
+function scrollDayIntoView(idx) {
+  const strip = document.getElementById('day-strip');
+  const btn = strip.children[idx];
+  if (btn) btn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+}
+
+// --- PWA: Service Worker ---
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
+// --- PWA: Install prompt ---
+let deferredInstallPrompt = null;
+const installBtn = document.getElementById('install-btn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  installBtn.classList.add('visible');
+});
+
+installBtn.addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  if (outcome === 'accepted') {
+    installBtn.classList.remove('visible');
+    showToast('App Installed!', '#3b82f6', '#0a1a2e');
+  }
+  deferredInstallPrompt = null;
+});
+
+window.addEventListener('appinstalled', () => {
+  installBtn.classList.remove('visible');
+  deferredInstallPrompt = null;
+});
+
+// --- Init ---
+render();
+setTimeout(() => scrollDayIntoView(state.activeDay), 100);
+</script>
+</body>
+</html>
