@@ -1,11 +1,11 @@
-const CACHE_NAME = 'hypertrophy-v1';
+const CACHE_NAME = 'hypertrophy-v2';
 const ASSETS = [
   './index.html',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',
-  'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500&display=swap'
+  'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@500;600&display=swap'
 ];
 
 // Install: cache all assets

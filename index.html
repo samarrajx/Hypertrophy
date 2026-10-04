@@ -2,240 +2,116 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Hypertrophy">
-<meta name="theme-color" content="#0a0a0f">
+<meta name="theme-color" content="#F7F1E8">
 <meta name="description" content="Advanced 16-day hypertrophy training tracker">
 <title>16-Day Hypertrophy</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --bg2: #0d0d18;
-    --bg3: #0f0f18;
-    --border: #1e1e3a;
-    --border2: #141420;
-    --text: #e8e8f0;
-    --muted: #888;
-    --dim: #555;
-    --pull: #3b82f6;
-    --push: #f97316;
-    --legs: #22c55e;
-    --bts: #a855f7;
-    --pull-dim: rgba(59,130,246,0.12);
-    --push-dim: rgba(249,115,22,0.12);
-    --legs-dim: rgba(34,197,94,0.12);
-    --bts-dim: rgba(168,85,247,0.12);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-    min-height: 100vh;
-    overscroll-behavior: none;
-  }
-  ::-webkit-scrollbar { width: 3px; height: 3px; }
-  ::-webkit-scrollbar-track { background: #111; }
-  ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-
-  /* HEADER */
-  #header {
-    background: linear-gradient(135deg, #0f0f1a 0%, #141428 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 16px 12px;
-    position: sticky; top: 0; z-index: 10;
-  }
-  #header .sub { font-size: 10px; letter-spacing: 3px; color: var(--dim); font-weight: 600; text-transform: uppercase; }
-  #header h1 { font-size: 26px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; line-height: 1; margin-top: 2px; }
-  #header-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 5px; }
-  #days-done-text { font-size: 12px; color: #666; }
-
-  /* HEADER ACTIONS */
-  .header-actions { display: flex; gap: 7px; align-items: center; }
-  .hdr-btn {
-    padding: 4px 9px; border-radius: 5px; border: 1px solid var(--border);
-    background: transparent; color: var(--dim); font-size: 10px; font-weight: 700;
-    letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; font-family: inherit;
-    -webkit-appearance: none; appearance: none; transition: all 0.15s;
-  }
-  .hdr-btn:active { background: rgba(255,255,255,0.06); }
-  #reset-btn { color: #ef4444; border-color: rgba(239,68,68,0.3); }
-  #reset-btn:hover { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.5); }
-  #install-btn { color: #3b82f6; border-color: rgba(59,130,246,0.3); display: none; }
-  #install-btn:hover { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.5); }
-  #install-btn.visible { display: block; }
-
-  /* DAY SELECTOR */
-  #day-selector {
-    background: var(--bg2);
-    border-bottom: 1px solid #1a1a2e;
-    padding: 10px 14px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  #day-selector::-webkit-scrollbar { display: none; }
-  #day-strip { display: flex; gap: 5px; width: max-content; }
-  .day-btn {
-    padding: 6px 9px; border-radius: 6px; border: 1px solid var(--border);
-    background: #111; color: var(--muted); font-size: 11px; font-weight: 500;
-    cursor: pointer; position: relative; font-family: inherit;
-    letter-spacing: 0.5px; white-space: nowrap; transition: all 0.15s;
-    -webkit-appearance: none; appearance: none;
-  }
-  .day-btn.active { color: #fff; font-weight: 800; }
-  .day-btn.done-dot::after {
-    content: ''; position: absolute; top: -3px; right: -3px;
-    width: 7px; height: 7px; border-radius: 50%; background: var(--legs);
-    border: 1px solid var(--bg2);
-  }
-  .bts-label { font-size: 9px; font-weight: 700; color: var(--bts); margin-left: 2px; }
-
-  /* MAIN */
-  #main { max-width: 480px; margin: 0 auto; padding: 14px 14px 32px; }
-
-  /* DAY HEADER */
-  #day-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
-  #day-meta { flex: 1; }
-  #day-meta .top-row { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
-  #day-meta .day-num { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; }
-  .tag-badge {
-    padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 800;
-    letter-spacing: 2px; text-transform: uppercase; border: 1px solid;
-  }
-  #day-meta h2 { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1.1; }
-  #day-pct { text-align: right; }
-  #day-pct .pct { font-size: 28px; font-weight: 900; line-height: 1; }
-  #day-pct .count { font-size: 11px; color: var(--dim); margin-top: 2px; }
-
-  /* PROGRESS BAR */
-  #progress-track { height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 14px; overflow: hidden; }
-  #progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s cubic-bezier(.4,0,.2,1); width: 0%; }
-
-  /* CARDIO TOGGLE */
-  #cardio-toggle {
-    width: 100%; padding: 10px 13px; border-radius: 8px; border: 1px solid var(--border);
-    background: var(--bg3); cursor: pointer; font-family: inherit; color: var(--text);
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px;
-    -webkit-appearance: none; appearance: none;
-  }
-  #cardio-toggle span.label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
-  #cardio-toggle span.arrow { font-size: 14px; color: var(--dim); }
-  #cardio-panel { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; margin-bottom: 9px; display: none; }
-  #cardio-panel.open { display: block; }
-  .cardio-section-title { font-size: 10px; letter-spacing: 2px; color: var(--dim); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
-  .cardio-item { font-size: 13px; color: #aaa; padding: 3px 0; display: flex; align-items: center; gap: 7px; }
-  .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--dim); display: inline-block; flex-shrink: 0; }
-  .cardio-sep { margin: 7px 0; }
-
-  /* BTS PANEL */
-  #bts-panel { background: #1a0f2e; border: 1px solid rgba(168,85,247,0.2); border-radius: 8px; padding: 10px 13px; margin-bottom: 9px; display: none; }
-  #bts-panel.visible { display: block; }
-  #bts-panel .bts-title { font-size: 10px; letter-spacing: 2px; color: var(--bts); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
-  #bts-panel p { font-size: 12px; color: #888; line-height: 1.6; }
-  #bts-panel b { color: #c084fc; }
-
-  /* EXERCISE TABLE */
-  #ex-table { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 11px; }
-  #ex-header { padding: 9px 13px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 52px 60px 58px; gap: 6px; }
-  #ex-header span { font-size: 10px; letter-spacing: 1.5px; color: #444; font-weight: 700; text-transform: uppercase; }
-  #ex-header span:not(:first-child) { text-align: center; }
-  .ex-row {
-    padding: 11px 13px; cursor: pointer; display: grid;
-    grid-template-columns: 1fr 52px 60px 58px; gap: 6px; align-items: start;
-    transition: background 0.12s, opacity 0.2s; border-bottom: 1px solid var(--border2);
-  }
-  .ex-row:last-child { border-bottom: none; }
-  .ex-row:active { background: rgba(255,255,255,0.04); }
-  .ex-row.checked { opacity: 0.4; }
-  .ex-name-wrap { display: flex; align-items: center; gap: 7px; }
-  .checkbox {
-    width: 17px; height: 17px; border-radius: 4px; flex-shrink: 0;
-    border: 1.5px solid #2a2a4a; background: transparent;
-    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
-  }
-  .checkbox svg { display: none; }
-  .checkbox.done { border: none; }
-  .checkbox.done svg { display: block; }
-  .ex-name { font-size: 13px; font-weight: 600; line-height: 1.2; color: var(--text); }
-  .ex-row.checked .ex-name { text-decoration: line-through; color: var(--dim); }
-  .ex-cue { font-size: 11px; color: var(--dim); margin-top: 2px; line-height: 1.3; }
-  .ex-sets, .ex-reps { font-size: 13px; font-weight: 700; text-align: center; color: #aaa; padding-top: 1px; }
-  .ex-reps { font-size: 12px; font-weight: 600; }
-  .ex-rpe { font-size: 11px; font-weight: 700; text-align: center; padding-top: 1px; }
-  .rpe-red { color: #f87171; }
-  .rpe-purple { color: #c084fc; }
-  .rpe-cyan { color: #67e8f9; }
-  .rpe-orange { color: #fb923c; }
-  .rpe-yellow { color: #fbbf24; }
-
-  /* COMPLETE BUTTON */
-  #complete-btn {
-    width: 100%; padding: 14px; border-radius: 10px; border: none; cursor: pointer;
-    font-family: inherit; font-size: 14px; font-weight: 800; letter-spacing: 3px;
-    text-transform: uppercase; transition: all 0.2s; -webkit-appearance: none; appearance: none;
-  }
-
-  /* PROGRESSION NOTE */
-  #prog-note { margin-top: 12px; padding: 10px 13px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; }
-  #prog-note .prog-title { font-size: 10px; letter-spacing: 2px; color: var(--dim); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
-  #prog-note p { font-size: 12px; color: #666; line-height: 1.6; }
-  #prog-note b { color: #888; }
-
-  /* TOAST */
-  #toast {
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: #1a2e1a; border: 1px solid var(--legs); color: var(--legs);
-    padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 700;
-    letter-spacing: 2px; text-transform: uppercase; opacity: 0; transition: all 0.3s;
-    pointer-events: none; white-space: nowrap; z-index: 100;
-  }
-  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* RESET CONFIRM MODAL */
-  #reset-modal {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200;
-    display: none; align-items: center; justify-content: center; padding: 20px;
-  }
-  #reset-modal.open { display: flex; }
-  #reset-modal-box {
-    background: #11111e; border: 1px solid #2a2a4a; border-radius: 12px;
-    padding: 24px 22px; max-width: 320px; width: 100%;
-  }
-  #reset-modal-box .modal-title {
-    font-size: 16px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
-    color: #ef4444; margin-bottom: 8px;
-  }
-  #reset-modal-box p { font-size: 13px; color: #888; line-height: 1.6; margin-bottom: 20px; }
-  .modal-btns { display: flex; gap: 9px; }
-  .modal-btns button {
-    flex: 1; padding: 11px; border-radius: 8px; border: 1px solid var(--border);
-    font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: 2px;
-    text-transform: uppercase; cursor: pointer; -webkit-appearance: none; appearance: none;
-    transition: all 0.15s;
-  }
-  #modal-cancel { background: transparent; color: var(--muted); }
-  #modal-cancel:active { background: rgba(255,255,255,0.06); }
-  #modal-confirm { background: rgba(239,68,68,0.15); color: #ef4444; border-color: rgba(239,68,68,0.35); }
-  #modal-confirm:active { background: rgba(239,68,68,0.25); }
+:root{--bg:#F7F1E8;--bg2:#F1E8DA;--card:#FFFBF5;--line:#E8DCCA;--ink:#3B2F25;--muted:#7A6A5A;--dim:#9C8B79;--sage:#6E8F6A;--sage-d:#4F6F4D;--peach:#F8DEC9;--wood:#A67B52;--shadow:0 1px 2px rgba(92,64,38,.06),0 8px 24px rgba(92,64,38,.07)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;line-height:1.45;min-height:100vh;overscroll-behavior:none}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
+button{font-family:inherit;-webkit-appearance:none;appearance:none}
+button:focus-visible,.ex-row:focus-visible{outline:2px solid var(--sage);outline-offset:2px}
+#header{background:linear-gradient(180deg,#FBE9D8 0%,var(--bg) 100%);padding:max(18px,env(safe-area-inset-top)) 18px 12px;position:sticky;top:0;z-index:10}
+#header .sub{font-size:13px;color:var(--wood);font-weight:500;letter-spacing:.2px}
+#header h1{font-family:'Fraunces',Georgia,serif;font-size:30px;font-weight:600;line-height:1.1;margin-top:2px}
+#header-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+#days-done-text{font-size:14px;color:var(--muted)}
+.header-actions{display:flex;gap:8px}
+.hdr-btn{padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;transition:background .2s}
+.hdr-btn:active{background:var(--peach)}
+#reset-btn{color:#B5533C}
+#install-btn{color:var(--sage-d);display:none}#install-btn.visible{display:block}
+#day-selector{background:var(--bg);padding:6px 16px 12px;overflow-x:auto;scrollbar-width:none}
+#day-selector::-webkit-scrollbar{display:none}
+#day-strip{display:flex;gap:8px;width:max-content}
+.day-btn{min-width:46px;padding:9px 12px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;position:relative;white-space:nowrap;transition:background .2s,color .2s}
+.day-btn.active{color:var(--ink);font-weight:700}
+.day-btn.done-dot::after{content:'';position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:var(--sage);border:2px solid var(--bg)}
+.bts-label{font-size:11px;font-weight:700;margin-left:3px;opacity:.7}
+#main{max-width:520px;margin:0 auto;padding:10px 16px 40px}
+#day-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+#day-meta{flex:1}
+.top-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.day-num{font-size:14px;color:var(--muted);font-weight:500}
+.tag-badge{padding:3px 11px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid}
+#day-meta h2{font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:600;line-height:1.15}
+#day-pct{text-align:right}
+#pct-text{font-family:'Fraunces',Georgia,serif;font-size:30px;font-weight:600;line-height:1}
+#count-text{font-size:13px;color:var(--dim);margin-top:3px}
+#progress-track{height:6px;background:var(--line);border-radius:3px;margin-bottom:16px;overflow:hidden}
+#progress-fill{height:100%;border-radius:3px;transition:width .4s ease;width:0}
+#cardio-toggle{width:100%;padding:13px 16px;border-radius:16px;border:1px solid var(--line);background:var(--card);cursor:pointer;color:var(--ink);display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;box-shadow:var(--shadow)}
+#cardio-toggle .label{font-size:15px;font-weight:600}
+#cardio-toggle .arrow{font-size:12px;color:var(--dim)}
+#cardio-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:10px;display:none}
+#cardio-panel.open{display:block}
+.cardio-section-title{font-size:13px;color:var(--wood);font-weight:600;margin-bottom:4px}
+.cardio-item{font-size:15px;color:var(--muted);padding:3px 0;display:flex;align-items:center;gap:9px}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--sage);flex-shrink:0}
+.cardio-sep{margin:10px 0}
+#bts-panel{background:#F3EAF0;border:1px solid #E3D2DE;border-radius:16px;padding:13px 16px;margin-bottom:10px;display:none}
+#bts-panel.visible{display:block}
+.bts-title{font-size:13px;color:#7D5C74;font-weight:600;margin-bottom:5px}
+#bts-panel p{font-size:14px;color:var(--muted);line-height:1.7}
+#bts-panel b{color:#7D5C74}
+#ex-table{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}
+#ex-header,.ex-row{display:grid;grid-template-columns:1fr 36px 66px 66px;gap:6px}
+#ex-header{padding:11px 16px;border-bottom:1px solid var(--line);background:var(--bg2)}
+#ex-header span{font-size:12px;color:var(--muted);font-weight:600}
+#ex-header span:not(:first-child){text-align:center}
+.ex-row{padding:14px 16px;cursor:pointer;align-items:start;border-bottom:1px solid var(--line);transition:background .2s}
+.ex-row:last-child{border-bottom:none}
+.ex-row:active{background:var(--bg2)}
+.ex-row.next{background:#FDF1E4;box-shadow:inset 4px 0 0 var(--wood)}
+.ex-name-wrap{display:flex;align-items:flex-start;gap:12px}
+.checkbox{width:26px;height:26px;border-radius:9px;flex-shrink:0;border:2px solid #D9C9B2;display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s;margin-top:1px}
+.checkbox svg{display:none}.checkbox.done{border-color:transparent}.checkbox.done svg{display:block}
+.ex-name{font-size:16px;font-weight:600;line-height:1.25}
+.ex-row.checked .ex-name{color:var(--dim);text-decoration:line-through;text-decoration-color:#CDBDA6}
+.ex-row.checked .ex-cue{color:#B9AA97}
+.ex-cue{font-size:13.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+.ex-sets,.ex-reps{font-size:15px;font-weight:600;text-align:center;padding-top:2px}
+.ex-reps{font-size:14px}
+.ex-rpe{font-size:12px;font-weight:600;text-align:center;padding:3px 0;border-radius:999px;align-self:start;margin-top:2px}
+.rpe-red{background:#F6DAD2;color:#9A4331}.rpe-purple{background:#EBDDE8;color:#7D5C74}.rpe-cyan{background:#D8E8E4;color:#3F6B63}.rpe-orange{background:#F8E2CC;color:#8D5A25}.rpe-yellow{background:#EEEBC9;color:#6B6420}
+#complete-btn{position:sticky;bottom:max(14px,env(safe-area-inset-bottom));width:100%;padding:17px;border-radius:18px;border:none;cursor:pointer;font-size:16px;font-weight:600;transition:background .25s,color .25s;box-shadow:0 10px 28px rgba(92,64,38,.14)}
+#prog-note{margin-top:16px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:16px}
+.prog-title{font-size:13px;color:var(--wood);font-weight:600;margin-bottom:5px}
+#prog-note p{font-size:14px;color:var(--muted);line-height:1.65}
+#prog-note b{color:var(--ink)}
+#toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(16px);border:1px solid;padding:11px 22px;border-radius:999px;font-size:15px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:100}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#reset-modal{position:fixed;inset:0;background:rgba(59,47,37,.45);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+#reset-modal.open{display:flex}
+#reset-modal-box{background:var(--card);border-radius:22px;padding:26px 24px;max-width:340px;width:100%;box-shadow:var(--shadow)}
+.modal-title{font-family:'Fraunces',Georgia,serif;font-size:21px;font-weight:600;margin-bottom:8px}
+#reset-modal-box p{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.modal-btns{display:flex;gap:10px}
+.modal-btns button{flex:1;padding:13px;border-radius:14px;border:1px solid var(--line);font-size:15px;font-weight:600;cursor:pointer}
+#modal-cancel{background:transparent;color:var(--muted)}
+#modal-confirm{background:#F6DAD2;color:#9A4331;border-color:#EBC3B7}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 
 <div id="header">
-  <div class="sub">Advanced · Hypertrophy</div>
+  <div class="sub">Advanced hypertrophy</div>
   <h1>16-Day Program</h1>
   <div id="header-bottom">
     <div class="days-done" id="days-done-text">0 of 16 days completed</div>
     <div class="header-actions">
-      <button id="install-btn" class="hdr-btn">⬇ Install</button>
-      <button id="reset-btn" class="hdr-btn">↺ Reset</button>
+      <button id="install-btn" class="hdr-btn">Install</button>
+      <button id="reset-btn" class="hdr-btn">Reset</button>
     </div>
   </div>
 </div>
@@ -262,23 +138,23 @@
   <div id="progress-track"><div id="progress-fill"></div></div>
 
   <button id="cardio-toggle">
-    <span class="label">🔥 Cardio Warmup</span>
+    <span class="label">Cardio warm-up</span>
     <span class="arrow" id="cardio-arrow">▼</span>
   </button>
   <div id="cardio-panel">
-    <div class="cardio-section-title">Common</div>
+    <div class="cardio-section-title">Every day</div>
     <div id="cardio-common"></div>
     <div class="cardio-sep"></div>
-    <div class="cardio-section-title">Unique</div>
+    <div class="cardio-section-title">Today</div>
     <div id="cardio-unique"></div>
   </div>
 
   <div id="bts-panel">
-    <div class="bts-title">Intensity Techniques</div>
+    <div class="bts-title">Intensity techniques</div>
     <p>
       <b>Myo-reps:</b> 1 set to failure → rest 10–15s → 3–5 mini sets of 3–5 reps<br>
       <b>LLP:</b> After failure, partial reps in the stretched position<br>
-      <b>Static Stretch:</b> 30s deep stretch hold after last set
+      <b>Static stretch:</b> 30s deep stretch hold after last set
     </p>
   </div>
 
@@ -300,12 +176,12 @@
   </div>
 </div>
 
-<div id="toast">✓ Day Complete!</div>
+<div id="toast">Day complete</div>
 
 <!-- Reset Confirmation Modal -->
 <div id="reset-modal">
   <div id="reset-modal-box">
-    <div class="modal-title">⚠ Reset All Progress?</div>
+    <div class="modal-title">Reset all progress?</div>
     <p>This will clear all checked exercises and completed days. This cannot be undone.</p>
     <div class="modal-btns">
       <button id="modal-cancel">Cancel</button>
@@ -337,7 +213,6 @@ const programData = [
     exercises: [
       { name: "Bench Press (Flat Barbell)", sets: 3, reps: "6–8", rpe: "8–9", cue: "Touch mid-chest; drive feet down." },
       { name: "Incline Machine Press", sets: 3, reps: "8–10", rpe: "9", cue: "Focus on upper pec fibers." },
-      { name: "Weighted Dips", sets: 3, reps: "Failure", rpe: "10", cue: "Lean forward for chest focus." },
       { name: "Machine Chest Press", sets: 3, reps: "10–12", rpe: "9", cue: "Constant tension; no full lockout." },
       { name: "Low-to-High Cable Flye", sets: 3, reps: "12–15", rpe: "9", cue: "Hands together at chin height." },
       { name: "Dumbbell Skull Crusher", sets: 3, reps: "12–15", rpe: "9", cue: "Lower weights toward your ears." },
@@ -354,10 +229,8 @@ const programData = [
       { name: "Leg Press (Wide Stance)", sets: 3, reps: "10–12", rpe: "9", cue: "Drive through the heels." },
       { name: "Hack Squat", sets: 3, reps: "8–10", rpe: "9", cue: "Deep stretch at the bottom." },
       { name: "Leg Extension", sets: 3, reps: "12–15", rpe: "9", cue: "Squeeze quads hard at top." },
-      { name: "Sissy Squat", sets: 3, reps: "12–15", rpe: "9", cue: "Feel quad pull on negative." },
       { name: "Walking Lunges", sets: 3, reps: "12/side", rpe: "9", cue: "Medium strides; vertical torso." },
       { name: "Standing Calf Raise", sets: 4, reps: "15–20", rpe: "9", cue: "1–2s pause at bottom stretch." },
-      { name: "Seated Calf Raise", sets: 3, reps: "15–20", rpe: "9", cue: "Slow, controlled reps." },
       { name: "Ab Wheel Rollout", sets: 3, reps: "10–12", rpe: "9", cue: "Round lower back; core tight." },
     ]
   },
@@ -373,6 +246,7 @@ const programData = [
       { name: "Arnold Press", sets: 3, reps: "10–12", rpe: "9", cue: "Rotate palms as you press." },
       { name: "Hanging Leg Raises", sets: 3, reps: "Failure", rpe: "10", cue: "Curl pelvis toward chest." },
       { name: "Cable Crunch", sets: 3, reps: "15–20", rpe: "9", cue: "Round back as you crunch." },
+      { name: "Neck Flexion (Plate, Lying)", sets: 2, reps: "15–20", rpe: "8", cue: "Chin tucks gently; slow, no jerking." },
       { name: "Wrist Curl (DB)", sets: 3, reps: "15–20", rpe: "9", cue: "Full range; slow control." },
       { name: "Reverse Wrist Curl", sets: 3, reps: "15–20", rpe: "9", cue: "Overhand grip; extensors." },
     ]
@@ -389,7 +263,6 @@ const programData = [
       { name: "Incline DB Curl", sets: 3, reps: "10–12", rpe: "9", cue: "Long head stretch at bottom." },
       { name: "Spider Curl", sets: 3, reps: "12–15", rpe: "9", cue: "Chest on incline; pure curl." },
       { name: "Cable Curl (Low Pulley)", sets: 3, reps: "12–15", rpe: "9", cue: "Constant tension at bottom." },
-      { name: "Farmer Carry", sets: 3, reps: "40m", rpe: "9", cue: "Shoulders back; walk fast." },
     ]
   },
   {
@@ -403,8 +276,6 @@ const programData = [
       { name: "Dips (Bodyweight)", sets: 3, reps: "Failure", rpe: "10", cue: "Deep dip; chest stretch." },
       { name: "JM Press", sets: 3, reps: "8–10", rpe: "9", cue: "Hybrid press and skull crusher." },
       { name: "Overhead Tricep Ext (DB)", sets: 3, reps: "12–15", rpe: "9", cue: "Keep elbows in; full stretch." },
-      { name: "Tricep Kickback", sets: 3, reps: "15–20", rpe: "9", cue: "Hold squeeze at top." },
-      { name: "Band Pulldown", sets: 3, reps: "20–25", rpe: "8", cue: "High reps pump finisher." },
     ]
   },
   {
@@ -415,10 +286,9 @@ const programData = [
       { name: "Lying Leg Curl", sets: 3, reps: "10–12", rpe: "9", cue: "Curl hard; squeeze at the top." },
       { name: "Seated Leg Curl", sets: 3, reps: "12–15", rpe: "9", cue: "Focus on hamstring stretch." },
       { name: "Hip Thrust (Barbell)", sets: 4, reps: "10–12", rpe: "9", cue: "Drive hips high; glute squeeze." },
-      { name: "Cable Pull-Through", sets: 3, reps: "15–20", rpe: "9", cue: "Hip hinge pattern; glute focus." },
       { name: "Bulgarian Split Squat", sets: 3, reps: "10/side", rpe: "9", cue: "Front foot flat; upright torso." },
-      { name: "Glute Kickback (Cable)", sets: 3, reps: "15/side", rpe: "9", cue: "Keep hips square." },
-      { name: "Donkey Calf Raise", sets: 4, reps: "15–20", rpe: "9", cue: "Full stretch at the bottom." },
+      { name: "Hip Abduction Machine", sets: 3, reps: "15–20", rpe: "9", cue: "Outer glutes; pause on each rep." },
+      { name: "Bent-Knee Calf Raise (Smith)", sets: 4, reps: "15–20", rpe: "9", cue: "Knees bent; targets the deeper calf." },
       { name: "Plank (Weighted)", sets: 3, reps: "45 sec", rpe: "9", cue: "Plate on back; stay tight." },
     ]
   },
@@ -430,10 +300,9 @@ const programData = [
       { name: "Cable Lateral Raise", sets: 4, reps: "15–20", rpe: "9", cue: "At cable; constant tension." },
       { name: "Bent-Over Lateral Raise", sets: 3, reps: "15–20", rpe: "9", cue: "Chest parallel to floor." },
       { name: "Machine Shoulder Press", sets: 3, reps: "10–12", rpe: "9", cue: "Control the descent." },
-      { name: "Landmine Press", sets: 3, reps: "10/side", rpe: "9", cue: "Single-arm arc press." },
-      { name: "Ab Rollout (Barbell)", sets: 3, reps: "8–10", rpe: "9", cue: "Extend fully; pull back slow." },
       { name: "Decline Crunch", sets: 3, reps: "15–20", rpe: "9", cue: "Hands behind head; full ROM." },
       { name: "Russian Twist", sets: 3, reps: "20 total", rpe: "9", cue: "Feet elevated; rotate fully." },
+      { name: "Neck Extension (Plate or Harness)", sets: 2, reps: "15–20", rpe: "8", cue: "Light load; smooth full range." },
       { name: "Pinch Grip Plate Carry", sets: 3, reps: "40m", rpe: "9", cue: "Pinch the edge; forearm burn." },
     ]
   },
@@ -441,7 +310,6 @@ const programData = [
     day: 9, focus: "Back & Biceps", tag: "BTS",
     cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Superman Holds", "Flutter Kicks", "Leg Circles"] },
     exercises: [
-      { name: "Snatch-Grip Deadlift", sets: 3, reps: "8–10", rpe: "10", cue: "Wide grip; increases back tension." },
       { name: "Seal Row (Dumbbell)", sets: 3, reps: "12–15", rpe: "10", cue: "Bench-supported; no momentum." },
       { name: "V-Bar Pulldown", sets: 3, reps: "10–12", rpe: "10", cue: "Squeeze the lats at the bottom." },
       { name: "Reverse Grip Lat Pulldown", sets: 3, reps: "12–15", rpe: "10", cue: "Underhand grip; lower lat focus." },
@@ -464,7 +332,6 @@ const programData = [
       { name: "Overhead Triceps Ext (Bar)", sets: 3, reps: "10–12", rpe: "10", cue: "Full extension at the top." },
       { name: "Barbell Floor Skull Crusher", sets: 3, reps: "12–15", rpe: "10", cue: "Barbell version on the floor." },
       { name: "Single Arm Tricep Ext", sets: 3, reps: "15–20", rpe: "10", cue: "Isolation for each arm." },
-      { name: "Farmer Walks", sets: 3, reps: "40m", rpe: "—", cue: "Grip strength and core stability." },
     ]
   },
   {
@@ -473,13 +340,11 @@ const programData = [
     exercises: [
       { name: "Smith Machine Squat", sets: 3, reps: "6–8", rpe: "9", cue: "Feet forward 3–6 inches." },
       { name: "Leg Press (Close Stance)", sets: 3, reps: "15–20", rpe: "9", cue: "Targets outer quad sweep." },
-      { name: "Good Mornings", sets: 3, reps: "10–12", rpe: "9", cue: "Slight knee bend; hip hinge." },
-      { name: "Deficit Deadlift", sets: 3, reps: "8–10", rpe: "9", cue: "Stand on a plate for extra ROM." },
       { name: "Single-Leg Leg Extension", sets: 2, reps: "15–20", rpe: "9", cue: "Fixes quad imbalances." },
       { name: "Single-Leg Leg Curl", sets: 2, reps: "15–20", rpe: "9", cue: "Fixes hamstring imbalances." },
+      { name: "Machine Hip Adduction", sets: 3, reps: "12–15", rpe: "9", cue: "Inner thighs; control the return." },
+      { name: "Cable Crunch", sets: 3, reps: "15–20", rpe: "9", cue: "Round your back as you crunch." },
       { name: "Toe Press on Leg Press", sets: 4, reps: "15–20", rpe: "9", cue: "Heavy calf isolation." },
-      { name: "Suitcase Carry", sets: 3, reps: "40m/side", rpe: "—", cue: "Walk with weight in one hand." },
-      { name: "Dead Bug (Core)", sets: 3, reps: "12–15", rpe: "9", cue: "Keep lower back flat on floor." },
     ]
   },
   {
@@ -494,6 +359,7 @@ const programData = [
       { name: "Cable Face Pulls", sets: 3, reps: "15–20", rpe: "8", cue: "Pull to ears; external rotation." },
       { name: "Lying Leg Raises", sets: 3, reps: "15–20", rpe: "8", cue: "Don't let feet touch the floor." },
       { name: "Plank", sets: 3, reps: "60 sec", rpe: "8", cue: "Full body tension." },
+      { name: "Side-Lying Neck Raise", sets: 2, reps: "15–20/side", rpe: "8", cue: "Raise head toward shoulder; go light." },
       { name: "Hammer Grip Wrist Curls", sets: 3, reps: "15–20", rpe: "8", cue: "Neutral grip wrist curls." },
       { name: "Towel Pull-Up Hang", sets: 3, reps: "Failure", rpe: "10", cue: "Extreme grip and forearm test." },
     ]
@@ -502,14 +368,12 @@ const programData = [
     day: 13, focus: "Back & Biceps", tag: "BTS",
     cardio: { common: ["Jumping Jacks", "Mountain Climbers"], unique: ["Star Jumps", "Crab Walks", "Bicycle Kicks"] },
     exercises: [
-      { name: "Pendlay Deficit Row", sets: 2, reps: "6–8", rpe: "Failure+LLP", cue: "1.5x width grip; pull to stomach." },
       { name: "Lean-Back Lat Pulldown", sets: 2, reps: "10–12", rpe: "Failure", cue: "Lean 15–30 deg; touch chest." },
       { name: "Chest-Supported T-Bar Row", sets: 2, reps: "10–12", rpe: "Failure", cue: "Flare elbows 45 deg." },
       { name: "Machine Preacher Curl", sets: 1, reps: "12–15", rpe: "Failure", cue: "Smooth, controlled reps." },
       { name: "Dual-Handle Lat Pulldown", sets: 2, reps: "10–12", rpe: "Myo-reps", cue: "Focus on lats and mid-traps." },
       { name: "EZ-Bar Cable Curl", sets: 2, reps: "10–12", rpe: "Myo-reps", cue: "Lowest cable position." },
       { name: "Cable Rope Hammer Curl", sets: 3, reps: "12–15", rpe: "Failure", cue: "Squeeze rope hard." },
-      { name: "DB Concentration Curl", sets: 1, reps: "15–20", rpe: "Failure", cue: "Mind-muscle connection." },
     ]
   },
   {
@@ -556,10 +420,10 @@ const programData = [
 ];
 
 const TAG_COLOR = {
-  PULL: { accent: '#3b82f6', dim: 'rgba(59,130,246,0.12)', text: '#93c5fd', border: 'rgba(59,130,246,0.25)' },
-  PUSH: { accent: '#f97316', dim: 'rgba(249,115,22,0.12)', text: '#fdba74', border: 'rgba(249,115,22,0.25)' },
-  LEGS: { accent: '#22c55e', dim: 'rgba(34,197,94,0.12)',  text: '#86efac', border: 'rgba(34,197,94,0.25)' },
-  BTS:  { accent: '#a855f7', dim: 'rgba(168,85,247,0.12)', text: '#d8b4fe', border: 'rgba(168,85,247,0.25)' },
+  PULL: { accent: '#6B8F8A', dim: '#E3EEEA', text: '#3F6B63', border: '#C5DAD3' },
+  PUSH: { accent: '#C7926A', dim: '#F8E4D2', text: '#8D5A25', border: '#EBCDB0' },
+  LEGS: { accent: '#7E9A6B', dim: '#E6EEDC', text: '#4F6F4D', border: '#CBDBB9' },
+  BTS:  { accent: '#A58BA0', dim: '#F0E6EE', text: '#7D5C74', border: '#DDC9D8' },
 };
 
 function rpeClass(rpe) {
@@ -574,12 +438,12 @@ function rpeClass(rpe) {
 const DEFAULT_STATE = { activeDay: 0, checked: {}, completedDays: {} };
 let state = { ...DEFAULT_STATE };
 try {
-  const saved = localStorage.getItem('hypertrophy_state');
+  const saved = localStorage.getItem('hypertrophy_state_v2');
   if (saved) state = JSON.parse(saved);
 } catch(e) {}
 
 function saveState() {
-  try { localStorage.setItem('hypertrophy_state', JSON.stringify(state)); } catch(e) {}
+  try { localStorage.setItem('hypertrophy_state_v2', JSON.stringify(state)); } catch(e) {}
 }
 function isChecked(dayNum, exIdx) {
   return !!state.checked[`d${dayNum}_e${exIdx}`];
@@ -595,7 +459,7 @@ function markDayComplete() {
   const day = programData[state.activeDay];
   state.completedDays[day.day] = true;
   saveState();
-  showToast('✓ Day Complete!', '#22c55e', '#1a2e1a');
+  showToast('Day complete', '#4F6F4D', '#E6EEDC');
   render();
 }
 
@@ -610,7 +474,7 @@ document.getElementById('modal-confirm').addEventListener('click', () => {
   state = { activeDay: 0, checked: {}, completedDays: {} };
   saveState();
   document.getElementById('reset-modal').classList.remove('open');
-  showToast('↺ Progress Reset', '#ef4444', '#1a0a0a');
+  showToast('Progress reset', '#9A4331', '#F6DAD2');
   render();
   setTimeout(() => scrollDayIntoView(0), 100);
 });
@@ -646,7 +510,7 @@ function render() {
     if (active) {
       btn.style.border = `1px solid ${tc2.accent}`;
       btn.style.background = tc2.dim;
-      btn.style.color = '#fff';
+      btn.style.color = 'var(--ink)';
     }
     let inner = `D${d.day}`;
     if (d.tag === 'BTS') inner += `<span class="bts-label">BTS</span>`;
@@ -667,13 +531,13 @@ function render() {
   // Percent
   const pctEl = document.getElementById('pct-text');
   pctEl.textContent = Math.round(pct) + '%';
-  pctEl.style.color = pct === 100 ? '#22c55e' : '#fff';
+  pctEl.style.color = pct === 100 ? 'var(--sage-d)' : 'var(--ink)';
   document.getElementById('count-text').textContent = `${done}/${total} done`;
 
   // Progress bar
   const fill = document.getElementById('progress-fill');
   fill.style.width = pct + '%';
-  fill.style.background = pct === 100 ? '#22c55e' : tc.accent;
+  fill.style.background = pct === 100 ? '#6E8F6A' : tc.accent;
 
   // Cardio
   document.getElementById('cardio-common').innerHTML = day.cardio.common.map(c =>
@@ -687,14 +551,15 @@ function render() {
   // Exercises
   const list = document.getElementById('ex-list');
   list.innerHTML = '';
+  const nextIdx = day.exercises.findIndex((_, k) => !isChecked(day.day, k));
   day.exercises.forEach((ex, i) => {
     const checked = isChecked(day.day, i);
     const row = document.createElement('div');
-    row.className = 'ex-row' + (checked ? ' checked' : '');
+    row.className = 'ex-row' + (checked ? ' checked' : '') + (i === nextIdx ? ' next' : '');
     row.innerHTML = `
       <div class="ex-name-wrap">
         <div class="checkbox ${checked ? 'done' : ''}" style="${checked ? `background:${tc.accent}` : ''}">
-          ${checked ? `<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}
+          ${checked ? `<svg width="14" height="11" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}
         </div>
         <div>
           <div class="ex-name">${ex.name}</div>
@@ -712,9 +577,9 @@ function render() {
   // Complete button
   const btn = document.getElementById('complete-btn');
   if (allDone) {
-    btn.textContent = '✓ Day Complete';
-    btn.style.background = '#1a2e1a';
-    btn.style.color = '#22c55e';
+    btn.textContent = 'Day complete';
+    btn.style.background = '#E6EEDC';
+    btn.style.color = '#4F6F4D';
     btn.style.cursor = 'default';
     btn.disabled = true;
   } else if (pct === 100) {
@@ -725,8 +590,8 @@ function render() {
     btn.disabled = false;
   } else {
     btn.textContent = `Complete All Exercises (${done}/${total})`;
-    btn.style.background = '#111';
-    btn.style.color = '#333';
+    btn.style.background = '#EFE5D6';
+    btn.style.color = '#A8977F';
     btn.style.cursor = 'not-allowed';
     btn.disabled = true;
   }
@@ -738,7 +603,7 @@ document.getElementById('cardio-toggle').addEventListener('click', () => {
   cardioOpen = !cardioOpen;
   document.getElementById('cardio-panel').classList.toggle('open', cardioOpen);
   document.getElementById('cardio-arrow').textContent = cardioOpen ? '▲' : '▼';
-  document.getElementById('cardio-toggle').style.background = cardioOpen ? '#111827' : '#0f0f18';
+  document.getElementById('cardio-toggle').style.background = cardioOpen ? '#F8E4D2' : '';
 });
 
 // --- Complete button ---
@@ -753,9 +618,9 @@ document.getElementById('complete-btn').addEventListener('click', () => {
 function showToast(msg, color, bg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.color = color || '#22c55e';
-  t.style.background = bg || '#1a2e1a';
-  t.style.borderColor = color || '#22c55e';
+  t.style.color = color || '#4F6F4D';
+  t.style.background = bg || '#E6EEDC';
+  t.style.borderColor = color || '#4F6F4D';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2000);
 }
@@ -790,7 +655,7 @@ installBtn.addEventListener('click', async () => {
   const { outcome } = await deferredInstallPrompt.userChoice;
   if (outcome === 'accepted') {
     installBtn.classList.remove('visible');
-    showToast('App Installed!', '#3b82f6', '#0a1a2e');
+    showToast('App installed', '#4F6F4D', '#E6EEDC');
   }
   deferredInstallPrompt = null;
 });

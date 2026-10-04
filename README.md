@@ -19,6 +19,7 @@
 
 ## Features
 
+- ✅ Light peach, wood and sage theme with larger, easier-to-tap controls
 - ✅ Reset button — clears all progress with confirmation dialog
 - ✅ PWA — works offline after first load
 - ✅ Installable — "Install App" button appears on Android/Chrome automatically
